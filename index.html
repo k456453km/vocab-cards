@@ -1,1 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>單字卡</title>
+  <style>
+    :root{
+      --purple:#9886c9;     /* 芋頭紫 */
+      --cream:#fff8ee;      /* 奶油白 */
+      --line:#e6ddcf;
+      --text:#3a3a3a;
+      --muted:#8e8a84;
+      --card:#ffffff;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height:100vh;
+      padding: 18px;
+      display:flex;
+      justify-content:center;
+    }
+    .app{ width: 380px; max-width: 94vw; }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 12px;
+    }
+    .brand{
+      font-weight: 1000; letter-spacing:.2px; color:#5a4b86; user-select:none;
+      display:flex; align-items:center; gap:8px;
+    }
+    .chip{
+      border: 1px solid var(--line);
+      background: rgba(155,138,203,.10);
+      color: #5a4b86;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .iconbtn{
+      width: 44px; height: 38px;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      background: rgba(255,255,255,.7);
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .burger{ width:18px; height:12px; position:relative; }
+    .burger span{
+      position:absolute; left:0; right:0;
+      height:2px; border-radius:999px;
+      background: #5a4b86;
+    }
+    .burger span:nth-child(1){ top:0; }
+    .burger span:nth-child(2){ top:5px; opacity:.9; }
+    .burger span:nth-child(3){ top:10px; }
 
+    .shell{
+      background: var(--card);
+      border-radius: 20px;
+      border: 2px solid var(--line);
+      padding: 18px 16px;
+      box-shadow:0 12px 30px rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+
+    .view{ display:none; }
+    .view.active{ display:block; }
+
+    /* Study */
+    .study-top{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 10px; color: var(--muted); font-size: 12px;
+      font-weight: 800;
+    }
+    .word{
+      font-size: 34px;
+      font-weight: 1000;
+      letter-spacing: .2px;
+      text-align:center;
+      margin: 12px 0 10px;
+      user-select:none;
+    }
+    .back{
+      display:none;
+      font-size: 18px;
+      line-height: 1.65;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px dashed var(--line);
+      background: rgba(255,248,238,.65);
+      margin: 0 auto;
+      white-space: pre-line;
+    }
+    .tapArea{ padding: 6px 4px 0; cursor:pointer; }
+    .buttons{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    button{
+      border-radius:999px;
+      border:2px solid var(--purple);
+      background:white;
+      color: var(--purple);
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 1000;
+      cursor:pointer;
+    }
+    button.primary{ background: var(--purple); color:white; }
+    .toast{
+      margin-top: 12px;
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align:center;
+      font-weight: 800;
+    }
+
+    /* Forms / Sections */
+    .title{ font-weight: 1000; color:#5a4b86; margin: 4px 0 10px; }
+    .subtitle{ color: var(--muted); font-size: 13px; margin: 0 0 14px; line-height: 1.6; font-weight: 700; }
+    .field{ margin-bottom: 10px; }
+    .field label{
+      display:block; font-size: 12px; color: var(--muted);
+      margin: 0 0 6px; font-weight: 900;
+    }
+    .field input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1.5px solid var(--line);
+      outline:none;
+      font-size: 14px;
+      background: rgba(255,255,255,.9);
+    }
+    .row{ display:flex; gap:10px; margin-top: 10px; }
+    .row button{
+      flex:1;
+      border-width: 1.5px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    .row button.secondary{
+      background: transparent;
+      border-color: var(--line);
+      color:#5a4b86;
+    }
+    .box{
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,248,238,.55);
+      margin-top: 10px;
+    }
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 360px){
+      .kpi{ grid-template-columns: 1fr; }
+    }
+    .kpi .tile{
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(155,138,203,.06);
+    }
+    .kpi .label{ font-size:12px; color: var(--muted); font-weight: 900; }
+    .kpi .val{ font-size:26px; font-weight: 1100; color:#5a4b86; margin-top: 4px; }
+
+    /* Drawer */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.25);
+      display:none;
+      z-index: 50;
+    }
+    .overlay.open{ display:block; }
+    .drawer{
+      position: fixed;
+      top: 0; right: 0;
+      height: 100vh;
+      width: 290px;
+      max-width: 82vw;
+      background: rgba(255,255,255,.96);
+      border-left: 2px solid var(--line);
+      box-shadow: -10px 0 30px rgba(0,0,0,.12);
+      transform: translateX(100%);
+      transition: transform .18s ease;
+      z-index: 60;
+      padding: 16px;
+      backdrop-filter: blur(10px);
+      overflow:auto;
+    }
+    .drawer.open{ transform: translateX(0); }
+    .dtitle{ font-weight: 1100; color:#5a4b86; margin: 4px 0 14px; }
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .menu button{
+      width:100%;
+      text-align:left;
+      border: 1.5px solid var(--line);
+      background: white;
+      color:#5a4b86;
+      padding: 12px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      cursor:pointer;
+    }
+    .menu button.active{
+      border-color: var(--purple);
+      background: rgba(155,138,203,.10);
+    }
+    .smallnote{
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">單字卡</div>
+      <div class="chip" id="statsChip">今日 0｜待複習 0｜總數 0</div>
+      <button class="iconbtn" id="menuBtn" aria-label="menu">
+        <div class="burger" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </button>
+    </div>
+
+    <div class="shell">
+      <!-- 1) 背單字 -->
+      <div class="view active" id="view-study">
+        <div class="study-top">
+          <span id="hint">點一下翻卡</span>
+          <span>到期優先</span>
+        </div>
+
+        <div class="tapArea" id="tapArea">
+          <div class="word" id="word">（尚無單字）</div>
+          <div class="back" id="back"></div>
+        </div>
+
+        <!-- ✅ 翻面後才出現 -->
+        <div class="buttons" id="rateButtons">
+          <button id="btnShort">5～10 張後</button>
+          <button id="btnHalf">半天後</button>
+          <button id="btnDay">一天後</button>
+          <button class="primary" id="btnFive">五天後</button>
+        </div>
+
+        <div class="toast" id="toastStudy"></div>
+      </div>
+
+      <!-- 2) 新增單字 -->
+      <div class="view" id="view-add">
+        <div class="title">➕ 新增單字</div>
+        <div class="subtitle">英＋中必填。詞性可用 n./v./adj.，也可以自己寫。</div>
+
+        <div class="field">
+          <label>英文（必填）</label>
+          <input id="new-en" placeholder="例如: endeavor" />
+        </div>
+        <div class="field">
+          <label>詞性（可留空）</label>
+          <input id="new-pos" placeholder="例如: v. / n. / adj." />
+        </div>
+        <div class="field">
+          <label>中文（必填）</label>
+          <input id="new-zh" placeholder="例如: 努力嘗試" />
+        </div>
+
+        <div class="row">
+          <button class="primary" id="btnAdd">加入單字</button>
+          <button class="secondary" id="btnGoStudy1">回去背</button>
+        </div>
+        <div class="toast" id="toastAdd"></div>
+      </div>
+
+      <!-- 3) 單字庫 -->
+      <div class="view" id="view-library">
+        <div class="title">📚 單字庫</div>
+        <div class="subtitle">
+          這裡會顯示你加過的所有單字。可以刪除、也可以編輯（會保留排程/進度）。
+        </div>
+
+        <div class="field">
+          <label>搜尋（可留空）</label>
+          <input id="libSearch" placeholder="輸入英文或中文關鍵字" />
+        </div>
+
+        <div class="box" style="margin-top:12px;">
+          <div style="font-weight:1000;color:#5a4b86;margin-bottom:8px;">清單</div>
+          <div id="libList" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="secondary" id="btnGoStudyLib">回去背</button>
+          <button class="secondary" id="btnExportFromLib">先備份一下</button>
+        </div>
+
+        <div class="toast" id="toastLib"></div>
+      </div>
+
+      <!-- 4) 同步/備份 -->
+      <div class="view" id="view-sync">
+        <div class="title">🔄 同步 / 備份</div>
+        <div class="subtitle">
+          不同的人用自己的備份碼就好：<br/>
+          你把你的備份碼存起來，別人也存自己的。<br/>
+          換人用：先清空 → 貼他的備份碼 → 就是他的資料。
+        </div>
+
+        <div class="row">
+          <button class="primary" id="btnExport">一鍵複製備份碼</button>
+          <button class="secondary" id="btnImport">貼上同步</button>
+        </div>
+
+        <div class="box">
+          <div style="font-weight:1000;color:#5a4b86;">清空本機資料（很危險）</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6;font-weight:700;margin-top:6px;">
+            會清空這台裝置上的單字庫＋進度＋統計。<br/>
+            建議先備份再清空。
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="secondary" id="btnWipeAll">我確定要清空</button>
+            <button class="secondary" id="btnGoStudy2">回去背</button>
+          </div>
+        </div>
+
+        <div class="toast" id="toastSync"></div>
+      </div>
+
+      <!-- 5) 統計 -->
+      <div class="view" id="view-stats">
+        <div class="title">📊 統計</div>
+        <div class="subtitle">不情勒版本：只給你最有用的進度感。</div>
+
+        <div class="kpi">
+          <div class="tile">
+            <div class="label">今日完成</div>
+            <div class="val" id="kpiDone">0</div>
+          </div>
+          <div class="tile">
+            <div class="label">待複習</div>
+            <div class="val" id="kpiDue">0</div>
+          </div>
+          <div class="tile">
+            <div class="label">單字總數</div>
+            <div class="val" id="kpiTotal">0</div>
+          </div>
+        </div>
+
+        <div class="box">
+          <div style="font-weight:1000;color:#5a4b86;">最近 7 天（完成張數）</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;font-weight:700;margin-top:6px;" id="weekList">
+            （尚無紀錄）
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="secondary" id="btnResetToday">把今日完成歸零</button>
+          <button class="secondary" id="btnGoStudy3">回去背</button>
+        </div>
+        <div class="toast" id="toastStats"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="overlay" id="overlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="dtitle">選單</div>
+    <div class="menu">
+      <button data-view="study" id="mStudy" class="active">🃏 背單字</button>
+      <button data-view="add" id="mAdd">➕ 新增單字</button>
+      <button data-view="library" id="mLibrary">📚 單字庫</button>
+      <button data-view="sync" id="mSync">🔄 同步/備份</button>
+      <button data-view="stats" id="mStats">📊 統計</button>
+    </div>
+
+    <div class="smallnote">
+      🔸 不同人共用：用「清空 → 貼上他的備份碼」切換。<br/>
+      🔸 先備份再清空，避免一鍵蒸發。<br/>
+      🔸 牌是隨機抽的：正常，這不是你眼花。
+    </div>
+  </div>
+
+<script>
+/* =========================
+   Storage Keys (single user)
+   ⚠️ 不要改，改了才會導致原資料讀不到
+========================= */
+const STORE_KEY = "vocab_cards_single_v1";
+const STATS_KEY = "vocab_stats_single_v1";
+
+/* =========================
+   Utils
+========================= */
+const now = () => Date.now();
+const rid = () => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+const pad2 = n => String(n).padStart(2,"0");
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+};
+function daysAgoStr(k){
+  const d = new Date();
+  d.setDate(d.getDate() - k);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function toast(id, msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = msg;
+  setTimeout(()=>{ if(el.textContent === msg) el.textContent=""; }, 1600);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, (m)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function escapeAttr(s){
+  return String(s).replace(/"/g, "&quot;");
+}
+
+/* =========================
+   Data Model
+   card: { id,en,pos,zh,nextDue,shortAfterN,updatedAt }
+   stats: { date, doneToday, doneByDate }
+========================= */
+let cards = [];
+let stats = { date: todayStr(), doneToday: 0, doneByDate: {} };
+let sessionSeen = 0;
+let current = null;
+
+// ✅ 完全空白庫（不塞範例）
+const seed = [];
+
+/* =========================
+   Load / Save
+========================= */
+function saveCards(){ localStorage.setItem(STORE_KEY, JSON.stringify(cards)); }
+function saveStats(){ localStorage.setItem(STATS_KEY, JSON.stringify(stats)); }
+
+function loadAll(){
+  // cards
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      cards = JSON.parse(raw);
+    }else{
+      cards = seed.map(x => ({
+        id: rid(), en:x.en, pos:x.pos, zh:x.zh,
+        nextDue: 0, shortAfterN: null, updatedAt: now()
+      }));
+    }
+  }catch(e){
+    cards = seed.map(x => ({
+      id: rid(), en:x.en, pos:x.pos, zh:x.zh,
+      nextDue: 0, shortAfterN: null, updatedAt: now()
+    }));
+  }
+
+  // stats
+  try{
+    const s = localStorage.getItem(STATS_KEY);
+    if(s) stats = JSON.parse(s);
+  }catch(e){}
+
+  // daily rollover
+  if(stats.date !== todayStr()){
+    if(stats.date){
+      stats.doneByDate = stats.doneByDate || {};
+      stats.doneByDate[stats.date] = stats.doneToday || 0;
+    }
+    stats.date = todayStr();
+    stats.doneToday = 0;
+    saveStats();
+  }
+}
+
+/* =========================
+   UI References
+========================= */
+const wordEl = document.getElementById("word");
+const backEl = document.getElementById("back");
+const hintEl = document.getElementById("hint");
+const statsChipEl = document.getElementById("statsChip");
+const tapArea = document.getElementById("tapArea");
+const rateButtons = document.getElementById("rateButtons");
+
+const kpiDone = document.getElementById("kpiDone");
+const kpiDue = document.getElementById("kpiDue");
+const kpiTotal = document.getElementById("kpiTotal");
+const weekList = document.getElementById("weekList");
+
+/* Library refs */
+const libList = document.getElementById("libList");
+const libSearch = document.getElementById("libSearch");
+let editingId = null;
+
+/* =========================
+   Drawer / Navigation
+========================= */
+const overlay = document.getElementById("overlay");
+const drawer = document.getElementById("drawer");
+const menuBtn = document.getElementById("menuBtn");
+
+const viewStudy = document.getElementById("view-study");
+const viewAdd = document.getElementById("view-add");
+const viewLibrary = document.getElementById("view-library");
+const viewSync = document.getElementById("view-sync");
+const viewStats = document.getElementById("view-stats");
+
+const menuButtons = [
+  document.getElementById("mStudy"),
+  document.getElementById("mAdd"),
+  document.getElementById("mLibrary"),
+  document.getElementById("mSync"),
+  document.getElementById("mStats"),
+];
+
+function openDrawer(){ overlay.classList.add("open"); drawer.classList.add("open"); }
+function closeDrawer(){ overlay.classList.remove("open"); drawer.classList.remove("open"); }
+menuBtn.addEventListener("click", openDrawer);
+overlay.addEventListener("click", closeDrawer);
+
+function showView(name){
+  [viewStudy, viewAdd, viewLibrary, viewSync, viewStats].forEach(v=>v.classList.remove("active"));
+  const map = { study:viewStudy, add:viewAdd, library:viewLibrary, sync:viewSync, stats:viewStats };
+  (map[name] || viewStudy).classList.add("active");
+
+  menuButtons.forEach(b=>b.classList.remove("active"));
+  const activeMap = { study:"mStudy", add:"mAdd", library:"mLibrary", sync:"mSync", stats:"mStats" };
+  document.getElementById(activeMap[name] || "mStudy").classList.add("active");
+
+  closeDrawer();
+  renderAll();
+}
+
+menuButtons.forEach(btn=>{
+  btn.addEventListener("click", ()=> showView(btn.dataset.view));
+});
+
+// quick return buttons
+document.getElementById("btnGoStudy1").addEventListener("click", ()=> showView("study"));
+document.getElementById("btnGoStudy2").addEventListener("click", ()=> showView("study"));
+document.getElementById("btnGoStudy3").addEventListener("click", ()=> showView("study"));
+document.getElementById("btnGoStudyLib").addEventListener("click", ()=> showView("study"));
+document.getElementById("btnExportFromLib").addEventListener("click", exportBackup);
+
+/* =========================
+   Study behaviors
+========================= */
+function isDue(c){
+  const dueByTime = (c.nextDue || 0) <= now();
+  const dueByShort = (c.shortAfterN == null) ? true : (sessionSeen >= c.shortAfterN);
+  return dueByTime && dueByShort;
+}
+function dueCount(){ return cards.filter(isDue).length; }
+
+/* ✅ 抽卡式隨機 */
+function pickNext(){
+  if(!cards.length) return null;
+
+  const due = cards.filter(isDue);
+  if(due.length){
+    // 到期卡：隨機抽一張
+    return due[Math.floor(Math.random() * due.length)];
+  }
+
+  // 沒到期卡：從「最近要到期的一小群」隨機抽（避免永遠抽到同一張）
+  const sorted = [...cards].sort((a,b)=> (a.nextDue||0) - (b.nextDue||0));
+  const k = Math.min(8, sorted.length);
+  return sorted[Math.floor(Math.random() * k)];
+}
+
+function showCard(c){
+  current = c;
+  backEl.style.display = "none";
+  rateButtons.style.display = "none"; // ✅ 新卡先隱藏按鈕
+  hintEl.textContent = "點一下翻卡";
+  wordEl.textContent = c.en || "（無）";
+  backEl.innerHTML = `<div><b>${escapeHtml(c.pos || "")}</b> ${escapeHtml(c.zh || "")}</div>`;
+}
+
+function nextCard(){
+  sessionSeen++;
+  const c = pickNext();
+  if(!c){
+    current = null;
+    wordEl.textContent = "（尚無單字）";
+    backEl.style.display = "none";
+    rateButtons.style.display = "none";
+    hintEl.textContent = "先去新增單字吧";
+    return;
+  }
+  showCard(c);
+}
+
+tapArea.addEventListener("click", ()=>{
+  if(!current) return;
+  backEl.style.display = "block";
+  rateButtons.style.display = "grid"; // ✅ 翻面後才出現
+  hintEl.textContent = "選一個你現在的感覺";
+});
+
+// prevent button click from flipping
+document.querySelectorAll("button").forEach(btn=>{
+  btn.addEventListener("click", (e)=> e.stopPropagation());
+});
+
+function markDone(){
+  stats.doneToday = (stats.doneToday || 0) + 1;
+  stats.doneByDate = stats.doneByDate || {};
+  stats.doneByDate[stats.date] = stats.doneToday;
+  saveStats();
+}
+
+function rate(type){
+  if(!current) return;
+
+  markDone();
+
+  const t = now();
+  if(type === "short"){
+    const offset = Math.floor(Math.random() * 6) + 5; // 5~10
+    current.shortAfterN = sessionSeen + offset;
+    current.nextDue = Math.min(current.nextDue || 0, t);
+  }else if(type === "half"){
+    current.nextDue = t + 12*60*60*1000;
+    current.shortAfterN = null;
+  }else if(type === "day"){
+    current.nextDue = t + 24*60*60*1000;
+    current.shortAfterN = null;
+  }else if(type === "five"){
+    current.nextDue = t + 5*24*60*60*1000;
+    current.shortAfterN = null;
+  }
+  current.updatedAt = t;
+  saveCards();
+
+  nextCard();
+  renderAll();
+}
+
+document.getElementById("btnShort").addEventListener("click", ()=> rate("short"));
+document.getElementById("btnHalf").addEventListener("click", ()=> rate("half"));
+document.getElementById("btnDay").addEventListener("click", ()=> rate("day"));
+document.getElementById("btnFive").addEventListener("click", ()=> rate("five"));
+
+/* =========================
+   Add word
+========================= */
+function addWord(){
+  const en = document.getElementById("new-en").value.trim();
+  const pos = document.getElementById("new-pos").value.trim() || "";
+  const zh = document.getElementById("new-zh").value.trim();
+
+  if(!en || !zh){
+    toast("toastAdd", "英文和中文一定要填喔");
+    return;
+  }
+  const dup = cards.find(c => (c.en||"").toLowerCase() === en.toLowerCase());
+  if(dup){
+    const ok = confirm(`「${en}」看起來已經存在，要仍然新增一張嗎？\n（取消就不新增）`);
+    if(!ok) return;
+  }
+
+  cards.push({
+    id: rid(), en, pos, zh,
+    nextDue: 0, shortAfterN: null, updatedAt: now()
+  });
+  saveCards();
+
+  document.getElementById("new-en").value = "";
+  document.getElementById("new-pos").value = "";
+  document.getElementById("new-zh").value = "";
+
+  toast("toastAdd", "已加入 ✨");
+  renderAll();
+}
+document.getElementById("btnAdd").addEventListener("click", addWord);
+
+/* =========================
+   Library (View)
+========================= */
+function fmtCardLine(c){
+  const pos = (c.pos || "").trim();
+  const zh = (c.zh || "").trim();
+  return `${pos ? pos+" " : ""}${zh}`;
+}
+
+function renderLibrary(){
+  if(!libList) return;
+
+  const q = (libSearch?.value || "").trim().toLowerCase();
+
+  let list = [...cards];
+  list.sort((a,b)=> (a.en||"").localeCompare((b.en||""), "en", { sensitivity:"base" }));
+
+  if(q){
+    list = list.filter(c=>{
+      const en = (c.en||"").toLowerCase();
+      const zh = (c.zh||"").toLowerCase();
+      const pos = (c.pos||"").toLowerCase();
+      return en.includes(q) || zh.includes(q) || pos.includes(q);
+    });
+  }
+
+  if(list.length === 0){
+    libList.innerHTML = `<div style="color:var(--muted);font-weight:800;">（目前沒有符合的單字）</div>`;
+    return;
+  }
+
+  libList.innerHTML = list.map(c=>{
+    const isEditing = (editingId === c.id);
+    if(!isEditing){
+      return `
+        <div data-id="${c.id}" style="border:1.5px solid var(--line);border-radius:16px;padding:12px;background:white;">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+            <div>
+              <div style="font-weight:1100;color:#5a4b86;font-size:18px;">${escapeHtml(c.en||"")}</div>
+              <div style="margin-top:6px;color:var(--text);font-weight:800;line-height:1.6;">${escapeHtml(fmtCardLine(c))}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:98px;">
+              <button class="secondary" data-act="edit" style="border-color:var(--line);">✏️ 編輯</button>
+              <button class="secondary" data-act="del" style="border-color:var(--line);">🗑 刪除</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div data-id="${c.id}" style="border:2px solid var(--purple);border-radius:16px;padding:12px;background:rgba(155,138,203,.06);">
+        <div style="font-weight:1100;color:#5a4b86;margin-bottom:10px;">編輯中</div>
+
+        <div class="field" style="margin-bottom:10px;">
+          <label>英文（必填）</label>
+          <input data-field="en" value="${escapeAttr(c.en||"")}" />
+        </div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>詞性（可留空）</label>
+          <input data-field="pos" value="${escapeAttr(c.pos||"")}" />
+        </div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>中文（必填）</label>
+          <input data-field="zh" value="${escapeAttr(c.zh||"")}" />
+        </div>
+
+        <div class="row" style="margin-top:8px;">
+          <button class="primary" data-act="save">儲存</button>
+          <button class="secondary" data-act="cancel">取消</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+libList.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  const act = btn.getAttribute("data-act");
+  const box = btn.closest("[data-id]");
+  if(!act || !box) return;
+
+  const id = box.getAttribute("data-id");
+  const idx = cards.findIndex(c=>c.id === id);
+  if(idx < 0) return;
+
+  if(act === "edit"){
+    editingId = id;
+    renderLibrary();
+    return;
+  }
+
+  if(act === "cancel"){
+    editingId = null;
+    renderLibrary();
+    return;
+  }
+
+  if(act === "save"){
+    const en = box.querySelector('input[data-field="en"]')?.value?.trim() || "";
+    const pos = box.querySelector('input[data-field="pos"]')?.value?.trim() || "";
+    const zh = box.querySelector('input[data-field="zh"]')?.value?.trim() || "";
+
+    if(!en || !zh){
+      toast("toastLib", "英文和中文一定要填喔");
+      return;
+    }
+
+    const ok = confirm("確定要儲存這次修改嗎？");
+    if(!ok) return;
+
+    // ✅ 保留排程/進度：只改字面欄位 + updatedAt
+    cards[idx].en = en;
+    cards[idx].pos = pos;
+    cards[idx].zh = zh;
+    cards[idx].updatedAt = now();
+    saveCards();
+
+    // 如果正在背同一張，也同步畫面
+    if(current && current.id === id){
+      current = cards[idx];
+      showCard(current);
+    }
+
+    editingId = null;
+    toast("toastLib", "已儲存 ✅");
+    renderAll();
+    return;
+  }
+
+  if(act === "del"){
+    const en = cards[idx].en || "(無英文)";
+    const ok1 = confirm(`確定要刪除「${en}」嗎？`);
+    if(!ok1) return;
+    const ok2 = confirm("最後確認：真的要刪除嗎？（無法復原）");
+    if(!ok2) return;
+
+    if(current && current.id === id){
+      current = null;
+    }
+
+    cards.splice(idx, 1);
+    saveCards();
+
+    editingId = null;
+    toast("toastLib", "已刪除 ✅");
+    renderAll();
+    return;
+  }
+});
+
+libSearch.addEventListener("input", ()=> renderLibrary());
+
+/* =========================
+   Sync / Backup
+========================= */
+function exportBackup(){
+  const payload = { v: 1, cards, stats };
+  const text = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const ok = navigator.clipboard && navigator.clipboard.writeText;
+  if(ok){
+    navigator.clipboard.writeText(text).then(()=>{
+      toast("toastSync", "備份碼已複製 ✅");
+    }).catch(()=>{
+      prompt("複製這段備份碼：", text);
+    });
+  }else{
+    prompt("複製這段備份碼：", text);
+  }
+}
+
+function importBackup(){
+  const text = prompt("把備份碼貼在這裡：");
+  if(!text) return;
+
+  let payload;
+  try{
+    payload = JSON.parse(decodeURIComponent(escape(atob(text.trim()))));
+  }catch(e){
+    alert("這段備份碼看起來不對🥲");
+    return;
+  }
+  if(!payload || !payload.cards){
+    alert("備份碼內容不完整🥲");
+    return;
+  }
+
+  // merge cards by id, keep newer updatedAt
+  const map = new Map(cards.map(c=>[c.id,c]));
+  for(const c of payload.cards){
+    const old = map.get(c.id);
+    if(!old) map.set(c.id, c);
+    else{
+      const newer = (c.updatedAt||0) >= (old.updatedAt||0) ? c : old;
+      map.set(c.id, newer);
+    }
+  }
+  cards = Array.from(map.values());
+  saveCards();
+
+  // merge stats by day max
+  if(payload.stats){
+    const ps = payload.stats;
+    stats.doneByDate = stats.doneByDate || {};
+    const other = ps.doneByDate || {};
+    for(const [d,val] of Object.entries(other)){
+      stats.doneByDate[d] = Math.max(stats.doneByDate[d]||0, val||0);
+    }
+    if(stats.date === todayStr()){
+      const incomingToday = (ps.date===stats.date) ? (ps.doneToday||0) : 0;
+      stats.doneToday = Math.max(stats.doneToday||0, incomingToday, stats.doneByDate[stats.date]||0);
+      stats.doneByDate[stats.date] = stats.doneToday;
+    }
+    saveStats();
+  }
+
+  toast("toastSync", "同步完成 ✅");
+  current = null;
+  nextCard();
+  renderAll();
+}
+
+document.getElementById("btnExport").addEventListener("click", exportBackup);
+document.getElementById("btnImport").addEventListener("click", importBackup);
+
+document.getElementById("btnWipeAll").addEventListener("click", ()=>{
+  const ok1 = confirm("確定要清空本機所有資料嗎？\n（單字庫＋進度＋統計都會消失）");
+  if(!ok1) return;
+  const ok2 = confirm("最後確認：真的要清空嗎？（這步無法復原）");
+  if(!ok2) return;
+
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(STATS_KEY);
+
+  loadAll();
+  sessionSeen = 0;
+  current = null;
+  editingId = null;
+  toast("toastSync", "已清空 ✅");
+  showView("study");
+  nextCard();
+  renderAll();
+});
+
+/* =========================
+   Stats view
+========================= */
+function renderStatsView(){
+  kpiDone.textContent = String(stats.doneToday || 0);
+  kpiDue.textContent = String(dueCount());
+  kpiTotal.textContent = String(cards.length);
+
+  const lines = [];
+  for(let i=6;i>=0;i--){
+    const d = daysAgoStr(i);
+    const v = (stats.doneByDate && stats.doneByDate[d]) ? stats.doneByDate[d] : 0;
+    lines.push(`${d}：${v} 張`);
+  }
+  weekList.textContent = lines.join("\n");
+}
+
+document.getElementById("btnResetToday").addEventListener("click", ()=>{
+  const ok = confirm("確定要把『今日完成』歸零嗎？\n（只影響今天的統計）");
+  if(!ok) return;
+
+  stats.doneToday = 0;
+  stats.doneByDate = stats.doneByDate || {};
+  stats.doneByDate[stats.date] = 0;
+  saveStats();
+  toast("toastStats", "今日完成已歸零");
+  renderAll();
+});
+
+/* =========================
+   Render (global)
+========================= */
+function renderChip(){
+  statsChipEl.textContent = `今日 ${stats.doneToday||0}｜待複習 ${dueCount()}｜總數 ${cards.length}`;
+}
+
+function renderAll(){
+  renderChip();
+  renderStatsView();
+  renderLibrary();
+
+  if(document.getElementById("view-study").classList.contains("active")){
+    if(!current) nextCard();
+  }
+}
+
+/* =========================
+   Boot
+========================= */
+loadAll();
+nextCard();
+renderAll();
+</script>
+
+</body>
+</html>
