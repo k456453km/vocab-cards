@@ -327,18 +327,34 @@ body{
 }
 .section-title{ font-size: 12px; font-weight: 950; color: var(--muted); margin-bottom: 8px; }
 
+/* ✅ 背景遮罩：預設不吃點擊 */
 .backdrop{
   position: fixed; inset: 0;
   background: rgba(26, 18, 43, .26);
   z-index: 15;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+}
+
+/* ✅ 只有 open 時才顯示、才吃點擊 */
+.backdrop.open{
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal{
-  position: fixed; inset: 0; z-index: 30;
-  display: grid; place-items: center;
-  background: rgba(26, 18, 43, .30);
-  padding: 18px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s ease;
 }
+
+.modal.open{
+  pointer-events: auto;
+  opacity: 1;
+}
+
 .modal-card{
   width: min(520px, 96vw);
   background: rgba(255,255,255,.86);

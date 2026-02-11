@@ -99,12 +99,19 @@ function showView(name){
 function openDrawer(){
   $("#drawer").classList.add("open");
   $("#drawer").setAttribute("aria-hidden", "false");
-  $("#backdrop").hidden = false;
+
+  const bd = $("#backdrop");
+  bd.hidden = false;          // 讓元素存在
+  bd.classList.add("open");   // ✅ 真正顯示&吃點擊
 }
+
 function closeDrawer(){
   $("#drawer").classList.remove("open");
   $("#drawer").setAttribute("aria-hidden", "true");
-  $("#backdrop").hidden = true;
+
+  const bd = $("#backdrop");
+  bd.classList.remove("open"); // ✅ 關掉遮罩吃點擊
+  bd.hidden = true;
 }
 
 /* -----------------------------
@@ -340,15 +347,27 @@ function openEdit(id){
   const w = getWordById(id);
   if(!w) return;
   editingId = id;
+
   $("#editWord").value = w.word;
   $("#editPos").value = w.pos;
   $("#editZh").value = w.zh;
-  $("#modal").hidden = false;
+
+  const md = $("#modal");
+  md.hidden = false;
+  md.classList.add("open");   // ✅ 讓 modal 可以點
+
+  // 重要：如果抽風殘留 drawer 遮罩，一起關掉
+  const bd = $("#backdrop");
+  bd.classList.remove("open");
+  bd.hidden = true;
 }
 
 function closeEdit(){
   editingId = null;
-  $("#modal").hidden = true;
+
+  const md = $("#modal");
+  md.classList.remove("open"); // ✅ 先移除 open
+  md.hidden = true;
 }
 
 function saveEdit(){
@@ -703,6 +722,12 @@ function bindUI(){
 (function init(){
   setSaveDot("ok");
   bindUI();
+  // ✅ Safari/iOS 保險：防止遮罩殘留把整頁點死
+  $("#backdrop").classList.remove("open");
+  $("#backdrop").hidden = true;
+  $("#modal").classList.remove("open");
+  $("#modal").hidden = true;
+
   document.body.classList.remove("modal-open"); // 防止卡死
   $("#modal").hidden = true;                    // 防止彈窗殘留
 
